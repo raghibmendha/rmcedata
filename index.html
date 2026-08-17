@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evidence Data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1E2B; --ink-2:#16293A; --ink-3:#1D3448;
+    --paper:#ECE6D6; --paper-dim:#93A6B3;
+    --brass:#C9A227; --brass-dim:#8A742A;
+    --stamp:#B8503F; --stamp-dim:#7A4038;
+    --green:#5C9382; --hairline:rgba(201,162,39,0.22); --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:radial-gradient(ellipse at top left, rgba(201,162,39,0.06), transparent 55%), var(--ink); color:var(--paper); font-family:'IBM Plex Sans', sans-serif; min-height:100vh;}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px;}
+  header{display:flex;align-items:flex-end;justify-content:space-between; border-bottom:1px solid var(--hairline); padding-bottom:18px;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
+  .brand{display:flex;align-items:center;gap:14px;}
+  .stamp-mark{width:52px;height:52px;flex-shrink:0;}
+  h1{font-family:'Source Serif 4', serif; font-weight:700;font-size:28px;letter-spacing:0.3px;margin:0;color:var(--paper);}
+  .sub{font-size:12.5px;color:var(--paper-dim);margin-top:3px;letter-spacing:0.4px;}
+  .tabs{display:flex;gap:2px;background:var(--ink-2);padding:3px;border-radius:var(--radius);border:1px solid var(--hairline);}
+  .tab-btn{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.6px;text-transform:uppercase; background:transparent;border:none;color:var(--paper-dim);padding:9px 16px;border-radius:2px;cursor:pointer; transition:all .15s ease;}
+  .tab-btn.active{background:var(--brass);color:var(--ink);font-weight:600;}
+  .panel{display:none;} .panel.active{display:block;}
+  .card{background:var(--ink-2);border:1px solid var(--hairline);border-radius:var(--radius); padding:22px;margin-bottom:18px;}
+  .card h2{font-family:'Source Serif 4',serif;font-size:16px;margin:0 0 14px;color:var(--paper); display:flex;align-items:center;gap:8px;}
+  .dropzone{border:1.5px dashed var(--hairline);border-radius:var(--radius); padding:36px 20px;text-align:center;cursor:pointer;background:rgba(201,162,39,0.03);}
+  .file-chip{display:inline-flex;align-items:center;gap:10px;background:var(--ink-3);border:1px solid var(--hairline); border-radius:var(--radius);padding:8px 14px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;margin-top:12px;}
+  button.primary{font-weight:600; background:var(--brass);color:var(--ink);border:none;padding:11px 20px;border-radius:var(--radius);cursor:pointer;}
+  .status-line{font-size:12.5px;color:var(--paper-dim);font-family:'IBM Plex Mono',monospace;}
+  .gd-card{border:1px solid var(--hairline);border-radius:var(--radius);margin-bottom:12px;}
+  .gd-card-head{background:var(--ink-3);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+  .gd-no{font-family:'IBM Plex Mono',monospace;color:var(--brass);font-size:13.5px;font-weight:600;}
+  .gd-card-body{display:none;padding:14px 16px 16px;background:rgba(0,0,0,0.12);}
+  .gd-card.open .gd-card-body{display:block;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th{text-align:left;color:var(--brass);padding:6px;border-bottom:1px solid var(--hairline);}
+  td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.05);color:var(--paper);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg class="stamp-mark" viewBox="0 0 100 100" fill="none">
+        <circle cx="50" cy="50" r="46" stroke="#C9A227" stroke-width="2" stroke-dasharray="4 3" opacity="0.7"/>
+        <text x="50" y="55" text-anchor="middle" fill="#C9A227" font-family="IBM Plex Mono" font-size="12">E-DATA</text>
+      </svg>
+      <div><h1>Evidence Data</h1><div class="sub">Goods Declaration &amp; Item History</div></div>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="upload">Upload GD</button>
+      <button class="tab-btn" data-tab="search">Search Records</button>
+    </div>
+  </header>
+
+  <div class="panel active" id="panel-upload">
+    <div class="card">
+      <h2>Load a GD PDF</h2>
+      <div class="dropzone" id="dropzone">Click or Drop PDF here</div>
+      <div id="fileChipHolder"></div>
+      <div class="actions-row">
+        <button class="primary" id="extractBtn" disabled>Extract data</button>
+        <span class="status-line" id="extractStatus"></span>
+      </div>
+    </div>
+    <div class="card" id="previewCard" style="display:none;">
+      <h2>Review & Save</h2>
+      <div id="previewHolder"></div>
+      <button class="primary" id="saveBtn">Save to Database</button>
+      <span id="saveStatus"></span>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-search">
+    <div class="card"><input type="text" id="searchInput" placeholder="Search..."></div>
+    <div id="resultsHolder"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDqdAXMEf6JodshF8Sdo_l6i7fpYfwgfc8",
+    authDomain: "custom-gds-data.firebaseapp.com",
+    projectId: "custom-gds-data",
+    storageBucket: "custom-gds-data.firebasestorage.app",
+    messagingSenderId: "939758804248",
+    appId: "1:939758804248:web:c8139eb74bedad5b36d26d"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let state = { fileData: null, extracted: null };
+
+  // File to Base64
+  document.getElementById('fileInput').addEventListener('change', e=>{
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = () => { state.fileData = reader.result; };
+      reader.readAsDataURL(file);
+      document.getElementById('extractBtn').disabled = false;
+  });
+
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+      const rec = { ...state.extracted, pdfBase64: state.fileData, saved_at: new Date().toISOString() };
+      await db.collection('evidence_data').doc(rec.gd_no).set(rec);
+      alert('Saved to Evidence Data!');
+      location.reload();
+  });
+  
+  // (Note: Other functions like extractData and runSearch should be updated to point to 'evidence_data' collection)
+</script>
+</body>
+</html>
